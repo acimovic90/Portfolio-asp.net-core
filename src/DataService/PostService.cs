@@ -136,14 +136,14 @@ namespace DataService
                 var result = db.Tags.FromSql("call getPostTags({0})", postId);
 
                 var tagList = new List<Tag>();
+
                 foreach (var tag in result)
                 {
                     
                     var t = new Tag
                     {
                         Id = tag.Id,
-                        Title = tag.Title,
-                        //Url = url(routeName: "PostsRoute", values: new { tag = tag.Title })                     
+                        Title = tag.Title
                     };
                     tagList.Add(t);
                 }
@@ -219,17 +219,30 @@ namespace DataService
 
         public IList<Post> GetPostBySearch(int page, int pageSize,string searchFor)
         {
-
             using (var db = new SovaContext())
             {
-                var result = db.Posts.FromSql("call e3({0} , {1} , {2} )", page, pageSize, searchFor );
-
-                var posts = new List<Post>();
-                foreach (var post in result)
+                if (searchFor.Split(' ').Length == 1)
                 {
-                    posts.Add(post);
+                    var result = db.Posts.FromSql("call getPostsByTag({0} )", searchFor);
+
+                    var posts = new List<Post>();
+                    foreach (var post in result)
+                    {
+                        posts.Add(post);
+                    }
+                    return posts;
                 }
-                return posts;
+                else
+                {
+                    var result = db.Posts.FromSql("call e3({0} , {1} , {2} )", page, pageSize, searchFor);
+
+                    var posts = new List<Post>();
+                    foreach (var post in result)
+                    {
+                        posts.Add(post);
+                    }
+                    return posts;
+                }
             }
         }
 
@@ -249,8 +262,7 @@ namespace DataService
                        var ct = new CloudTag
                        {
                            Word = tag.Word,
-                           Count = tag.Count,
-                           //Url = url.Link(routeName: "PostsRoute", values: new { tag = tag.Word })
+                           Count = tag.Count
                        };
                         tagList.Add(ct);
                     }
@@ -266,8 +278,7 @@ namespace DataService
                         var ct = new CloudTag
                         {
                             Word = tag.Word,
-                            Count = tag.Count,
-                            //Url = url.Link(routeName: "WordCloudRoute", values: new { id = tag.Word })
+                            Count = tag.Count
                         };
                         tagList.Add(ct);
                     }

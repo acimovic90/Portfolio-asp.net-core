@@ -15,7 +15,7 @@ namespace ProjectPortfolio2.ViewModels
             return new TagViewModel
             {
                 Title = tag.Title,
-                Url = url.Link(Config.TagRoute, new { id = tag.Id })
+                Url = url.Link(Config.PostsRoute, new { searchFor = tag.Title })
             };
         }
     }

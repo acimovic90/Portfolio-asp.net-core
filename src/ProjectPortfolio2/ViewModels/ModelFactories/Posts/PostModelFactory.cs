@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Castle.Core.Internal;
 using DomainModels.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
@@ -28,9 +29,25 @@ namespace ProjectPortfolio2.ViewModels
                 User = GetUserViewModel(post.User, url),
                 AcceptedAnswer = GetAcceptedAnswerView(post, url),
                 Answers = getListOfAnswerView(post, url),
-                Tags = post.TagsList,
+                Tags = GetTagView(post.TagsList, url),
                 RelatedPosts = post.RelatedPostsLists
             };
+        }
+
+        private static List<Tag> GetTagView(List<Tag> tags, IUrlHelper url)
+        {
+            if (!tags.IsNullOrEmpty())
+            {
+                foreach (var tag in tags)
+                {
+                    tag.Url = url.Link(Config.PostsRoute, new {searchFor = tag.Title});
+                }
+                return tags;
+            }
+            else
+            {
+                return tags;
+            }
         }
 
         private static UserPostViewModel GetUserViewModel(User postUser, IUrlHelper url)
@@ -41,7 +58,7 @@ namespace ProjectPortfolio2.ViewModels
                 {
                     Displayname = postUser.DisplayName,
                     CreationDate = postUser.CreationDate,
-                    Url = url.Link(Config.UserRoute, new {id = postUser.Id})
+                    Url = url.Link(Config.UserRoute, new { id = postUser.Id })
                 };
                 return user;
             }
@@ -51,7 +68,7 @@ namespace ProjectPortfolio2.ViewModels
             return null;
         }
 
-        public static List<PostListViewModel> getListOfAnswerView(Post post, IUrlHelper url)
+        private static List<PostListViewModel> getListOfAnswerView(Post post, IUrlHelper url)
         {
             var answers = new List<PostListViewModel>();
 
@@ -85,7 +102,7 @@ namespace ProjectPortfolio2.ViewModels
             return answers;
         }
 
-        public static List<CommentViewModel> GetListOfCommentsView(List<Comment> commentList, IUrlHelper url)
+        private static List<CommentViewModel> GetListOfCommentsView(List<Comment> commentList, IUrlHelper url)
         {
             var comments = new List<CommentViewModel>();
             foreach (var comment in commentList)
@@ -101,7 +118,7 @@ namespace ProjectPortfolio2.ViewModels
                 try
                 {
                     tmp.User = new UserPostViewModel
-                    {                     
+                    {
                         Displayname = comment.User.DisplayName,
                         CreationDate = comment.User.CreationDate,
                         Url = url.Link(Config.UserRoute, new { id = comment.User.Id })
@@ -116,7 +133,7 @@ namespace ProjectPortfolio2.ViewModels
             return comments;
         }
 
-        public static AcceptedPostViewModel GetAcceptedAnswerView(Post post, IUrlHelper url)
+        private static AcceptedPostViewModel GetAcceptedAnswerView(Post post, IUrlHelper url)
         {
             // create accepted answer using viewModel
             var acceptedAnswer = new AcceptedPostViewModel
